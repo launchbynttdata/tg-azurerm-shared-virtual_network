@@ -1,0 +1,55 @@
+# This will be replaced with trigger from main branch
+trigger: none
+
+resources:
+  repositories:
+    # This is the repository where ADO pipeline templates and common bash functions are stored
+    - repository: utils
+      type: github
+      name: 'launchbynttdata/lcaf-component-provider_az-pipeline_azdo'
+      ref: feature/1456
+      endpoint: 'launchbynttdata-github-token'
+
+parameters:
+  - name: serviceConnection
+    type: string
+    default: 'ado-sp'
+
+pool: 'container-pool'
+
+stages:
+  - template: ./templates/stages/terragrunt.yaml
+    parameters:
+      deployEnvironments:
+        - environment: sandbox
+          region: eastus
+          environmentNumber: "000"
+          azureEnvironment: tg-rg-sandbox-eastus-000
+        # - environment: sandbox
+        #   region: eastus
+        #   environmentNumber: "001"
+        #   azureEnvironment: tg-rg-sandbox-eastus-001
+        # - environment: qa
+        #   region: eastus
+        #   environmentNumber: "000"
+        #   azureEnvironment: tg-rg-qa-eastus-000
+        #   dependsOn:
+        #     - sandbox_eastus_000_deploy
+        #     - sandbox_eastus_001_deploy
+        # - environment: uat
+        #   region: eastus
+        #   environmentNumber: "000"
+        #   azureEnvironment: tg-rg-uat-eastus-000
+        #   dependsOn:
+        #     - qa_eastus_000_deploy
+        # - environment: prod
+        #   region: eastus
+        #   environmentNumber: "000"
+        #   azureEnvironment: tg-rg-prod-eastus-000
+        #   dependsOn:
+        #     - uat_eastus_000_deploy
+      subscription: ${{ parameters.serviceConnection }}
+      pool: 'container-pool'
+      checkoutSteps:
+        - checkout: self
+        - checkout: utils
